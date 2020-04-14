@@ -3,13 +3,7 @@ from sqlalchemy import Column, String, Integer, create_engine
 from flask_sqlalchemy import SQLAlchemy
 import json
 
-database_name = "trivia"
-database_user = "postgres"
-database_pw = "postgres"
-database_path = "postgres://{}:{}@{}/{}".format(database_user,
-                                                database_pw,
-                                                'localhost:5433',
-                                                database_name)
+database_path = os.environ['DATABASE_URL']
 
 db = SQLAlchemy()
 
@@ -28,25 +22,70 @@ def setup_db(app, database_path=database_path):
 
 
 '''
-Question
+Data Provider
+A Data Provider is a company that sells data. Examples include ComScore,
+STR, Earnest Research and others.
 
 '''
 
 
-class Question(db.Model):
-    __tablename__ = 'questions'
+class DataProvider(db.Model):
+    __tablename__ = 'providers'
 
     id = Column(Integer, primary_key=True)
-    question = Column(String)
-    answer = Column(String)
-    category = Column(String)
-    difficulty = Column(Integer)
+    name = Column(String, nullable=False)
+    description = Column(String)
+    biases = Column(String)
+    datasets = db.relationship(
+        'Dataset',
+        backref='provider')
 
-    def __init__(self, question, answer, category, difficulty):
-        self.question = question
-        self.answer = answer
-        self.category = category
-        self.difficulty = difficulty
+    def __init__(self, name, description="", biases=""):
+        self.name = name
+        self.description = description
+        self.biases = biases
+
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def short(self):
+        return {
+          'id': self.id,
+          'name': self.name
+        }
+    
+    def long(self):
+        return {
+          'id': self.id,
+          'name': self.name,
+          'description': self.description,
+          'biases': self.biases
+        }
+
+
+'''
+Dataset
+
+'''
+
+class Dataset(db.Model):
+    __tablename__ = 'datasets'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    type = Column(String)
+    description = Column(String)
+    provider_id = db.Column(db.Integer, db.ForeignKey('providers.id'), nullable=False)
+
+    def __init__(self, name, description="", biases=""):
+        self.name = name
+        self.type = type
+        self.description = description
 
     def insert(self):
         db.session.add(self)
@@ -59,30 +98,7 @@ class Question(db.Model):
     def format(self):
         return {
           'id': self.id,
-          'question': self.question,
-          'answer': self.answer,
-          'category': self.category,
-          'difficulty': self.difficulty
-        }
-
-
-'''
-Category
-
-'''
-
-
-class Category(db.Model):
-    __tablename__ = 'categories'
-
-    id = Column(Integer, primary_key=True)
-    type = Column(String)
-
-    def __init__(self, type):
-        self.type = type
-
-    def format(self):
-        return {
-          'id': self.id,
-          'type': self.type
+          'name': self.name,
+          'type': self.type,
+          'description': self.description,
         }
