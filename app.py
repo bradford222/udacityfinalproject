@@ -5,6 +5,7 @@ import json
 from flask_cors import CORS
 
 from models import setup_db, DataProvider, Dataset
+from auth.auth import AuthError, requires_auth
 
 def create_app():
     app = Flask(__name__)
@@ -27,6 +28,7 @@ def create_app():
         })
 
     @app.route('/providers/<int:provider_id>', methods=['GET'])
+    @requires_auth('read:provider-details')
     def provider_details(provider_id):
         provider = DataProvider.query.filter(DataProvider.id == provider_id).one_or_none()
         
@@ -122,6 +124,12 @@ def create_app():
             print(es)
             abort(422)
 
+    @app.route('/login', methods=['GET'])
+    def login_callback():
+        return jsonify({
+                'success': True,
+            })
+
     # Error Handling
 
     @app.errorhandler(404)
@@ -155,5 +163,13 @@ def create_app():
             "error": 500,
             "message": "internal server error"
         }), 400
+
+    @app.errorhandler(AuthError)
+    def unauthorized_error(error):
+        return jsonify({
+            "success": False,
+            "error": 401,
+            "message": "unauthorized"
+        }), 401
 
     return app
