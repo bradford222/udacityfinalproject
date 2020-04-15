@@ -41,6 +41,7 @@ def create_app():
         })
 
     @app.route('/providers/<int:provider_id>', methods=['DELETE'])
+    @requires_auth('delete:provider')
     def delete_provider(provider_id):
         try:
             provider = DataProvider.query.filter(DataProvider.id == provider_id)\
@@ -60,6 +61,7 @@ def create_app():
             abort(422)
 
     @app.route('/providers/<int:provider_id>', methods=['PATCH'])
+    @requires_auth('patch:provider')
     def update_provider_details(provider_id):
         provider = DataProvider.query.filter(DataProvider.id == provider_id).one_or_none()
 
@@ -85,6 +87,7 @@ def create_app():
             abort(422)
 
     @app.route('/providers', methods=['POST'])
+    @requires_auth('create:provider')
     def add_provider():
         body = request.get_json()
 
@@ -104,6 +107,7 @@ def create_app():
             abort(422)
 
     @app.route('/datasets', methods=['POST'])
+    @requires_auth('create:dataset')
     def add_dataset():
         body = request.get_json()
 
