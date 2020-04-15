@@ -18,7 +18,7 @@ def setup_db(app, database_path=database_path):
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.app = app
     db.init_app(app)
-    db.create_all()
+    #db.create_all()
 
 
 '''
@@ -38,6 +38,7 @@ class DataProvider(db.Model):
     biases = Column(String)
     datasets = db.relationship(
         'Dataset',
+        cascade="all,delete",
         backref='provider')
 
     def __init__(self, name, description="", biases=""):
@@ -51,6 +52,9 @@ class DataProvider(db.Model):
 
     def delete(self):
         db.session.delete(self)
+        db.session.commit()
+
+    def update(self):
         db.session.commit()
 
     def short(self):
@@ -82,10 +86,11 @@ class Dataset(db.Model):
     description = Column(String)
     provider_id = db.Column(db.Integer, db.ForeignKey('providers.id'), nullable=False)
 
-    def __init__(self, name, description="", biases=""):
+    def __init__(self, name, provider_id, type="", description=""):
         self.name = name
         self.type = type
         self.description = description
+        self.provider_id = provider_id
 
     def insert(self):
         db.session.add(self)
