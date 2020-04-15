@@ -64,11 +64,17 @@ class DataProvider(db.Model):
         }
     
     def long(self):
+        datasets_list = []
+
+        for dataset in self.datasets:
+            datasets_list.append(dataset.format())
+
         return {
           'id': self.id,
           'name': self.name,
           'description': self.description,
-          'biases': self.biases
+          'biases': self.biases,
+          'datasets': datasets_list
         }
 
 

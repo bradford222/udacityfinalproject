@@ -31,7 +31,7 @@ def create_app():
     @requires_auth('read:provider-details')
     def provider_details(provider_id):
         provider = DataProvider.query.filter(DataProvider.id == provider_id).one_or_none()
-        
+
         if provider is None:
             abort(404)
 
@@ -122,7 +122,7 @@ def create_app():
             
             return jsonify({
                 'success': True,
-                'provider_id': dataset.id
+                'dataset_id': dataset.id
             })
         except Exception as es:
             print(es)
@@ -166,7 +166,7 @@ def create_app():
             "success": False,
             "error": 500,
             "message": "internal server error"
-        }), 400
+        }), 500
 
     @app.errorhandler(AuthError)
     def unauthorized_error(error):
