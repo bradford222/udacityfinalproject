@@ -170,7 +170,7 @@ def create_app():
         }), 400
 
     @app.errorhandler(500)
-    def bad_request(error):
+    def server_error(error):
         return jsonify({
             "success": False,
             "error": 500,
