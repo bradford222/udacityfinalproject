@@ -18,7 +18,7 @@ def setup_db(app, database_path=database_path):
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.app = app
     db.init_app(app)
-    #db.create_all()
+    # db.create_all()
 
 
 '''
@@ -62,7 +62,7 @@ class DataProvider(db.Model):
           'id': self.id,
           'name': self.name
         }
-    
+
     def long(self):
         datasets_list = []
 
@@ -83,6 +83,7 @@ Dataset
 
 '''
 
+
 class Dataset(db.Model):
     __tablename__ = 'datasets'
 
@@ -90,7 +91,8 @@ class Dataset(db.Model):
     name = Column(String, nullable=False)
     type = Column(String)
     description = Column(String)
-    provider_id = db.Column(db.Integer, db.ForeignKey('providers.id'), nullable=False)
+    provider_id = db.Column(db.Integer, db.ForeignKey('providers.id'),
+                            nullable=False)
 
     def __init__(self, name, provider_id, type="", description=""):
         self.name = name

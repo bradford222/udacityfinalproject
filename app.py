@@ -1,11 +1,17 @@
 import os
-from flask import Flask, request, jsonify, abort
+from flask import (
+                    Flask,
+                    request,
+                    jsonify,
+                    abort
+                    )
 from sqlalchemy import exc
 import json
 from flask_cors import CORS
 
 from models import setup_db, DataProvider, Dataset
 from auth.auth import AuthError, requires_auth
+
 
 def create_app():
     app = Flask(__name__)
@@ -30,7 +36,8 @@ def create_app():
     @app.route('/providers/<int:provider_id>', methods=['GET'])
     @requires_auth('read:provider-details')
     def provider_details(provider_id):
-        provider = DataProvider.query.filter(DataProvider.id == provider_id).one_or_none()
+        provider = DataProvider.query.filter(DataProvider.id == provider_id).\
+                                one_or_none()
 
         if provider is None:
             abort(404)
@@ -44,7 +51,8 @@ def create_app():
     @requires_auth('delete:provider')
     def delete_provider(provider_id):
         try:
-            provider = DataProvider.query.filter(DataProvider.id == provider_id)\
+            provider = DataProvider.query.filter(
+                                    DataProvider.id == provider_id)\
                                     .one_or_none()
 
             if provider is None:
@@ -63,10 +71,11 @@ def create_app():
     @app.route('/providers/<int:provider_id>', methods=['PATCH'])
     @requires_auth('patch:provider')
     def update_provider_details(provider_id):
-        provider = DataProvider.query.filter(DataProvider.id == provider_id).one_or_none()
+        provider = DataProvider.query.filter(DataProvider.id == provider_id
+                                             ).one_or_none()
 
         body = request.get_json()
-        
+
         if provider is None:
             abort(404)
 
@@ -78,7 +87,7 @@ def create_app():
             provider.description = description
             provider.biases = biases
             provider.update()
-            
+
             return jsonify({
                 'success': True,
                 'provider_id': provider.id
@@ -98,7 +107,7 @@ def create_app():
         try:
             provider = DataProvider(name, description, biases)
             provider.insert()
-            
+
             return jsonify({
                 'success': True,
                 'provider_id': provider.id
@@ -119,7 +128,7 @@ def create_app():
         try:
             dataset = Dataset(name, provider_id, type, description)
             dataset.insert()
-            
+
             return jsonify({
                 'success': True,
                 'dataset_id': dataset.id
@@ -134,7 +143,7 @@ def create_app():
                 'success': True,
             })
 
-    # Error Handling
+    # Handle various error codes arising in the application
 
     @app.errorhandler(404)
     def not_found(error):
